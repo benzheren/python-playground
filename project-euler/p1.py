@@ -1,9 +1,7 @@
-def sum(max):
-    sum = 0
-    for i in range(1, max):
-        if i%3 == 0 or i%5 == 0:
-            sum += i
-    return sum
+sum = 0
 
-if __name__ == "__main__":
-    print sum(1000)
+for i in xrange(1, 1000):
+    if not i%3 or not i%5:
+        sum += i
+
+print sum
