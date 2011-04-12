@@ -51,7 +51,14 @@ class RectanglePacker(object):
  
         Returns the location at which the rectangle has been placed"""
         point = self.TryPack(rectangleWidth, rectangleHeight)
- 
+        
+        if point:
+            self.integrateRectangle(point.x, rectangleWidth, point.y \
+                + rectangleHeight)
+
+        print 'placement %d %d' % (point.x, point.y)
+        print '---------------'
+
         #if not point:
         #    raise OutOfSpaceError("Rectangle does not fit in packing area")
  
@@ -67,6 +74,9 @@ class RectanglePacker(object):
         be found, otherwise returns None"""
         raise NotImplementedError
  
+    def integrateRectangle(self, left, width, bottom):
+        pass
+
 class CygonRectanglePacker(RectanglePacker):
     """
     Packer using a custom algorithm by Markus 'Cygon' Ewald
@@ -118,9 +128,9 @@ class CygonRectanglePacker(RectanglePacker):
  
         # If a place for the rectangle could be found, update the height slice
         # table to mark the region of the rectangle as being taken.
-        if placement:
-            self.integrateRectangle(placement.x, rectangleWidth, placement.y \
-            + rectangleHeight)
+        #if placement:
+        #    self.integrateRectangle(placement.x, rectangleWidth, placement.y \
+        #    + rectangleHeight)
  
         return placement
  
@@ -159,13 +169,15 @@ class CygonRectanglePacker(RectanglePacker):
                     highest = self.heightSlices[index].y
  
             # Only process this position if it doesn't leave the packing area
+            print 'highest %d' % highest
             if highest + rectangleHeight <= self.packingAreaHeight:
-                score = highest
- 
-                if score < bestScore:
-                    bestSliceIndex = leftSliceIndex
-                    bestSliceY = highest
-                    bestScore = score
+                return Point(self.heightSlices[leftSliceIndex].x, highest)
+                #score = highest
+                 
+                #if score < bestScore:
+                #    bestSliceIndex = leftSliceIndex
+                #    bestSliceY = highest
+                #    bestScore = score
  
             # Advance the starting slice to the next slice start
             leftSliceIndex += 1
@@ -180,7 +192,9 @@ class CygonRectanglePacker(RectanglePacker):
                     rightSliceStart = self.packingAreaWidth
                 else:
                     rightSliceStart = self.heightSlices[rightSliceIndex].x
- 
+                
+                print 'rightSliceStart %d rightRectangleEnd %d' % \
+                (rightSliceStart, rightRectangleEnd)
                 # Is this the slice we're looking for?
                 if rightSliceStart >= rightRectangleEnd:
                     break
@@ -196,10 +210,10 @@ class CygonRectanglePacker(RectanglePacker):
         # rectangle didn't fit anywhere, the slice index will still have its
         # initialization value of -1 and we can report that no placement
         # could be found.
-        if bestSliceIndex == -1:
-            return None
-        else:
-            return Point(self.heightSlices[bestSliceIndex].x, bestSliceY)
+        #if bestSliceIndex == -1:
+        return None
+        #else:
+        #    return Point(self.heightSlices[bestSliceIndex].x, bestSliceY)
  
     def integrateRectangle(self, left, width, bottom):
         """Integrates a new rectangle into the height slice table
@@ -258,3 +272,11 @@ class CygonRectanglePacker(RectanglePacker):
                 del self.heightSlices[startSlice:endSlice]
                 if right < self.packingAreaWidth:
                     self.heightSlices.insert(startSlice, Point(right, returnHeight))
+
+if __name__ == "__main__":
+    packer =  CygonRectanglePacker(14, 8)
+    packer.Pack(8, 8)
+    packer.Pack(5, 7)
+    packer.Pack(4, 1)
+    print packer.heightSlices[-1].x
+    print packer.heightSlices[-1].y
