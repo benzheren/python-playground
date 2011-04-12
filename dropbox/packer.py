@@ -52,8 +52,8 @@ class RectanglePacker(object):
         Returns the location at which the rectangle has been placed"""
         point = self.TryPack(rectangleWidth, rectangleHeight)
  
-        if not point:
-            raise OutOfSpaceError("Rectangle does not fit in packing area")
+        #if not point:
+        #    raise OutOfSpaceError("Rectangle does not fit in packing area")
  
         return point
  
@@ -110,7 +110,7 @@ class CygonRectanglePacker(RectanglePacker):
         # If the rectangle is larger than the packing area in any dimension,
         # it will never fit!
         if rectangleWidth > self.packingAreaWidth or rectangleHeight > \
-           self.packingAreaHeight:
+        self.packingAreaHeight:
             return None
  
         # Determine the placement for the new rectangle
@@ -121,12 +121,6 @@ class CygonRectanglePacker(RectanglePacker):
         if placement:
             self.integrateRectangle(placement.x, rectangleWidth, placement.y \
             + rectangleHeight)
-        else:
-            print 'fail'
-        
-        for i in self.heightSlices:
-            print '%d %d' % (i.x, i.y)
-        print '------------'
  
         return placement
  
@@ -152,7 +146,6 @@ class CygonRectanglePacker(RectanglePacker):
  
         # Determine the slice in which the right end of the rectangle is located
         rightSliceIndex = bisect_left(self.heightSlices, Point(rectangleWidth, 0))
-        print 'rightsliceindex is %d' % rightSliceIndex
         if rightSliceIndex < 0:
             rightSliceIndex = ~rightSliceIndex
  
@@ -164,8 +157,7 @@ class CygonRectanglePacker(RectanglePacker):
             for index in xrange(leftSliceIndex + 1, rightSliceIndex):
                 if self.heightSlices[index].y > highest:
                     highest = self.heightSlices[index].y
-            print 'highest is %d' % highest
-
+ 
             # Only process this position if it doesn't leave the packing area
             if highest + rectangleHeight <= self.packingAreaHeight:
                 score = highest
@@ -188,16 +180,13 @@ class CygonRectanglePacker(RectanglePacker):
                     rightSliceStart = self.packingAreaWidth
                 else:
                     rightSliceStart = self.heightSlices[rightSliceIndex].x
-                
-                print 'rightslicestart %d rightsliceend %d' % (rightSliceStart,
-                                                              rightRectangleEnd)
+ 
                 # Is this the slice we're looking for?
                 if rightSliceStart >= rightRectangleEnd:
                     break
  
                 rightSliceIndex += 1
-
-            print 'rightsliceindex is %d' % rightSliceIndex
+ 
             # If we crossed the end of the slice array, the rectangle's right
             # end has left the packing area, and thus, our search ends.
             if rightSliceIndex > len(self.heightSlices):
@@ -269,10 +258,3 @@ class CygonRectanglePacker(RectanglePacker):
                 del self.heightSlices[startSlice:endSlice]
                 if right < self.packingAreaWidth:
                     self.heightSlices.insert(startSlice, Point(right, returnHeight))
-
-
-if __name__ == "__main__":
-    packer = CygonRectanglePacker(13, 8)
-    p = packer.TryPack(8, 8)
-    p = packer.TryPack(3, 4)
-    p = packer.TryPack(3, 4)
