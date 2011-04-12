@@ -193,8 +193,8 @@ class CygonRectanglePacker(RectanglePacker):
                 else:
                     rightSliceStart = self.heightSlices[rightSliceIndex].x
                 
-                print 'rightSliceStart %d rightRectangleEnd %d' % \
-                (rightSliceStart, rightRectangleEnd)
+                #print 'rightSliceStart %d rightRectangleEnd %d' % \
+                #(rightSliceStart, rightRectangleEnd)
                 # Is this the slice we're looking for?
                 if rightSliceStart >= rightRectangleEnd:
                     break
@@ -223,7 +223,9 @@ class CygonRectanglePacker(RectanglePacker):
         bottom: Position of the rectangle's lower side"""
         # Find the first slice that is touched by the rectangle
         startSlice = bisect_left(self.heightSlices, Point(left, 0))
- 
+        print 'integrate startSlice %d' % startSlice
+        for i in self.heightSlices:
+            print 'height slice %d and %d' % (i.x, i.y)
         # Did we score a direct hit on an existing slice start?
         if startSlice >= 0:
             # We scored a direct hit, so we can replace the slice we have hit
@@ -237,6 +239,7 @@ class CygonRectanglePacker(RectanglePacker):
  
         right = left + width
         startSlice += 1
+        print 'right'
  
         # Special case, the rectangle started on the last slice, so we cannot
         # use the start slice + 1 for the binary search and the possibly
@@ -251,7 +254,7 @@ class CygonRectanglePacker(RectanglePacker):
         else: # The rectangle doesn't start on the last slice
             endSlice = bisect_left(self.heightSlices, Point(right,0), \
             startSlice, len(self.heightSlices))
- 
+            print 'endSlice %d' % endSlice 
             # Another direct hit on the final slice's end?
             if endSlice > 0:
                 del self.heightSlices[startSlice:endSlice]
