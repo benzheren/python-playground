@@ -1,0 +1,40 @@
+import sys
+from string import atoi
+
+def solve(input):
+    g = {}
+    liars = set([])
+    non_liars = set([])
+    n = atoi(input.readline())
+    for i in xrange(n):
+        temp = []
+        accuser = input.readline().split()
+        for j in xrange(atoi(accuser[1])):
+            temp.append(input.readline().strip())
+        g[accuser[0]] = temp
+
+    for k, v in g.items():
+        for e in v:
+            if not k in g[e]:
+                g[e].append(k)
+    
+    q = []
+    q.append(g.keys()[0])
+    while len(liars) + len(non_liars) < n:
+        current = q.pop(0)
+        if current in non_liars:
+            for e in g[current]:
+                liars.add(e)
+        else:
+            liars.add(current)
+            for e in g[current]:
+                non_liars.add(e)
+        for e in g[current]:
+            q.append(e)
+
+    if len(liars) > len(non_liars):
+        print '%d %d' % (len(liars), len(non_liars))
+    else:
+        print '%d %d' % (len(non_liars), len(liars))
+
+solve(sys.stdin)
